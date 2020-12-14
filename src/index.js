@@ -1,12 +1,25 @@
+import "react-app-polyfill/ie11";
+import "react-app-polyfill/stable";
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import './styles/main.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Router>
+      <Switch>
+        <Route exact path="/" component={App}/>
+        <Redirect to="/" />
+      </Switch>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );

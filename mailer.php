@@ -6,9 +6,13 @@
 	if(!empty($_POST)) {
 		require $_SERVER['DOCUMENT_ROOT'] . '/libs/PHPMailer/src/PHPMailer.php';
 		require $_SERVER['DOCUMENT_ROOT'] . '/libs/PHPMailer/src/Exception.php';
+		require $_SERVER['DOCUMENT_ROOT'] . '/libs/PHPMailer/src/SMTP.php';
+		
+		date_default_timezone_set('Etc/UTC');
 		
 		$id = $_POST['id'];
 		$uploadsDir = $_SERVER['SERVER_NAME'] . '/uploads/' . $id . '/';
+		$uploadsDir2 = $_SERVER['DOCUMENT_ROOT'] . '/uploads/' . $id . '/';
 		
 		$email = new PHPMailer\PHPMailer\PHPMailer();
 		
@@ -64,6 +68,7 @@
 		$Buss_Aktenzeichen = "";
 		$Buss_Datum = "";
 		$Buss_Behorde = "";
+		$Buss_Behorde_Custom = "";
 		$Buss_Upload = [];
 		$Buss_Anhorungsbogen = [];
 		$Buss_Zeugenfragebogen = [];
@@ -79,22 +84,28 @@
 			if(isset($Buss['Behorde'])){
 				$Buss_Behorde = $Buss['Behorde'];
 			}
+			if(isset($Buss['Behorde'])){
+				$Buss_Behorde_Custom = $Buss['BehordeCustom'];
+			}
 			if(isset($Buss['Upload'])){
 				$doks = $Buss['Upload']['fileList'];
 				foreach ($doks as $dok){
 					$Buss_Upload[] = "<a href='" . $uploadsDir . $dok['name'] . "' target='_blank'>" . $dok['name'] . "</a>";
+					$email->addAttachment($uploadsDir2 . $dok['name'], $dok['name']);
 				}
 			}
 			if(isset($Buss['Anhorungsbogen'])){
 				$doks = $Buss['Anhorungsbogen']['fileList'];
 				foreach ($doks as $dok){
 					$Buss_Anhorungsbogen[] = "<a href='" . $uploadsDir . $dok['name'] . "' target='_blank'>" . $dok['name'] . "</a>";
+					$email->addAttachment($uploadsDir2 . $dok['name'], $dok['name']);
 				}
 			}
 			if(isset($Buss['Zeugenfragebogen'])){
 				$doks = $Buss['Zeugenfragebogen']['fileList'];
 				foreach ($doks as $dok){
 					$Buss_Zeugenfragebogen[] = "<a href='" . $uploadsDir . $dok['name'] . "' target='_blank'>" . $dok['name'] . "</a>";
+					$email->addAttachment($uploadsDir2 . $dok['name'], $dok['name']);
 				}
 			}
 		}
@@ -272,22 +283,22 @@
 			}
 			if(isset($Mitfahrgelegenheit['Select'])){
 				$Mitfahrgelegenheit_Select = $Mitfahrgelegenheit['Select'];
-				if($Mitfahrgelegenheit_Select === "Anbindung"){
+				if(in_array("Anbindung", $Mitfahrgelegenheit_Select)){
 					$Mitfahrgelegenheit_Anbindung = "true";
 				}
-				if($Mitfahrgelegenheit_Select === "Arbeitsmaterialen"){
+				if(in_array("Arbeitsmaterialen", $Mitfahrgelegenheit_Select)){
 					$Mitfahrgelegenheit_Arbeitsmaterialen = "true";
 				}
-				if($Mitfahrgelegenheit_Select === "Berufskraftfahrer"){
+				if(in_array("Berufskraftfahrer", $Mitfahrgelegenheit_Select)){
 					$Mitfahrgelegenheit_Berufskraftfahrer = "true";
 				}
-				if($Mitfahrgelegenheit_Select === "Kundenstamm"){
+				if(in_array("Kundenstamm", $Mitfahrgelegenheit_Select)){
 					$Mitfahrgelegenheit_Kundenstamm = "true";
 				}
-				if($Mitfahrgelegenheit_Select === "Terminabsprachen"){
+				if(in_array("Terminabsprachen", $Mitfahrgelegenheit_Select)){
 					$Mitfahrgelegenheit_Terminabsprachen = "true";
 				}
-				if($Mitfahrgelegenheit_Select === "Berufsausubung"){
+				if(in_array("Berufsausubung", $Mitfahrgelegenheit_Select)){
 					$Mitfahrgelegenheit_Berufsausubung = "true";
 				}
 			}
@@ -323,19 +334,32 @@
 			$doks = $_POST['Weitere_Dokumente']['fileList'];
 			foreach ($doks as $dok){
 				$Weitere_Dokumente[] = "<a href='" . $uploadsDir . $dok['name'] . "' target='_blank'>" . $dok['name'] . "</a>";
+				$email->addAttachment($uploadsDir2 . $dok['name'], $dok['name']);
 			}
 		}
+		$email->isSMTP();
+		$email->SMTPAuth = true;
+		$email->SMTPDebug = 0;
 		
-		$email->SetFrom("info@lawnow.de", 'info@lawnow.de');
+		$email->Host = 'ssl://smtp.ionos.de';
+		$email->Port = 465;
+		$email->Username = 'mandat@brs-ag.de';
+		$email->Password = 'ztR9.81-sw21A';
+		
+		// $email->Host = 'ssl://smtp.ionos.de';
+		// $email->Port = 465;
+		// $email->Username = 'mandat@hallounfall.de';
+		// $email->Password = '987LawNow!*31sva#123';
+		
+		$email->SetFrom("info@brs-ag.de", 'info@brs-ag.de');
 		$email->isHTML(true);
-		$email->CharSet = "UTF-8";
+		$email->CharSet = 'UTF-8';
 		$email->Encoding = 'base64';
-		$email->Subject   = 'Owi form';
-		$email->AddAddress( 'Zakablukov777@gmail.com' );
+		$email->Subject   = 'Owi Form';
 		$email->AddAddress( 'anselm.appel@42dbs.de' );
-		$email->AddAddress( 'evseenko.stp@gmail.com' );
-		$email->AddAddress( 'fifih.i@42dbs.de' );
-		$email->AddAddress( 'mandat@lawnow.de' );
+		$email->AddAddress( 'mandat@brs-ag.de' );
+		$email->AddAddress( 'Zakablukov777@gmail.com' );
+		$email->AddAddress( 'info@brs-ag.de' );
 		
 		$msg = "<h1>OWI</h1>";
 		$msg .= "<p>Geschlecht: " . $Clientdata_Geschlecht . "</p>";
@@ -351,14 +375,15 @@
 		$msg .= "<p>Vorwurf: " . $Clientdata_Vorwurf . "</p>";
 		
 		$msg .= "<br/>";
-	
+		
 		$msg .= "<p>Aktenzeichen Bussgeldstelle: " . $Buss_Aktenzeichen . "</p>";
 		$msg .= "<p>Datum Bußgeldbescheid: " . date("Y-m-d", strtotime($Buss_Datum)) . " 00:00:00</p>";
-		$msg .= "<p>Ausstellende Behoerde: " . $Buss_Behorde . "</p>";
+		$msg .= "<p>Ausstellende Behoerde: " . "person:" . $Buss_Behorde . "</p>";
+		$msg .= "<p>Ausstellende Behoerde (custom): " . "person:" . $Buss_Behorde_Custom . "</p>";
 		$msg .= "<p>Upload Bußgeldbescheid: " . join("<br/>", $Buss_Upload) . "</p>";
 		$msg .= "<p>Anhörungsbogen: " . join("<br/>", $Buss_Anhorungsbogen) . "</p>";
 		$msg .= "<p>Zeugenfragebogen: " . join("<br/>", $Buss_Zeugenfragebogen) . "</p>";
-
+		
 		$msg .= "<br/>";
 		
 		$msg .= "<p>Fahrverbot: " . $Fahrverbot_Frage . "</p>";
@@ -379,18 +404,18 @@
 		$msg .= "<p>Unterwegs: " . $Ausland_Frage . "</p>";
 		
 		$msg .= "<br/>";
-
+		
 		$msg .= "<h2>Ausland</h2>";
 		$msg .= "<p>Regional: " . $Ausland_Regional . "</p>";
 		$msg .= "<p>Bundeswelt: " . $Ausland_Bundeswelt . "</p>";
 		$msg .= "<p>Ausland: " . $Ausland_Ausland . "</p>";
-
+		
 		$msg .= "<br/>";
 		
 		$msg .= "<p>Berufsweg: " . $Berufsweg . "</p>";
 		$msg .= "<p>Projektbetreuung: " . $Taetigkeit_ChechboxGroup_Projektbetreuung . "</p>";
 		$msg .= "<p>Kundenakquise: " . $Taetigkeit_ChechboxGroup_Kundenakquise . "</p>";
-		$msg .= "<p>Sonstige: " . $Taetigkeit_ChechboxGroup_Sonstige . "</p>";
+		$msg .= "<p>Sonstiges: " . $Taetigkeit_ChechboxGroup_Sonstige . "</p>";
 		
 		$msg .= "<br/>";
 		
@@ -406,7 +431,7 @@
 		$msg .= "<p>Kundenstamm: " . $Mitfahrgelegenheit_Kundenstamm . "</p>";
 		$msg .= "<p>Terminabsprachen: " . $Mitfahrgelegenheit_Terminabsprachen . "</p>";
 		$msg .= "<p>Berufsausübung: " . $Mitfahrgelegenheit_Berufsausubung . "</p>";
-
+		
 		$msg .= "<br/>";
 		
 		$msg .= "<p>Arbeitgeber2: " . $Arbeitgeber . "</p>";
@@ -421,24 +446,24 @@
 		$msg .= "<p>Urlaubswochen: " . $Fahrverbot_Urlaubswochen . "</p>";
 		$msg .= "<p>Urlaubstage: " . $Fahrverbot_Urlaubstage . "</p>";
 		$msg .= "<p>Gruende: " . $Fahrverbot_Gruende . "</p>";
-
+		
 		$msg .= "<br/>";
 		
 		$msg .= "<p>Auftragsfristen: " . $Fahrverbot_Gruende_Auftragsfristen . "</p>";
 		$msg .= "<p>Wirtschaftliche: " . $Fahrverbot_Gruende_Wirtschaftliche . "</p>";
 		$msg .= "<p>Sonstiges: " . $Fahrverbot_Gruende_Sonstiges . "</p>";
-		$msg .= "<p>Sonstige: " . $Fahrverbot_Sonstige . "</p>";
+		$msg .= "<p>Sonstiges2: " . $Fahrverbot_Sonstige . "</p>";
 		
 		$msg .= "<br/>";
 		
 		$msg .= "<p>Freizeit: " . $Freizeit . "</p>";
 		$msg .= "<p>Voreintragung: " . $Voreintragung . "</p>";
-
+		
 		$msg .= "<br/>";
 		
 		$msg .= "<p>Informationen: " . $Informationen . "</p>";
 		$msg .= "<p>Weitere Dokumente: " . join("<br/>", $Weitere_Dokumente) . "</p>";
-
+		
 		$email->Body = $msg;
 		
 		if(!$email->send()) {

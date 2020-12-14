@@ -1,6 +1,6 @@
 import React from "react";
 
-const RadioImage = ({ name, id, value, onChangeRadioImage, checked, index, image}) => {
+const RadioImage = ({ name, id, value, title, onChangeRadioImage, checked, index, image}) => {
   return (
     <div className="radioImage">
       <input
@@ -17,7 +17,7 @@ const RadioImage = ({ name, id, value, onChangeRadioImage, checked, index, image
       <label className="radioImage-label" htmlFor={id}>
         {image}
       </label>
-      <p>{value}</p>
+      <p>{title}</p>
     </div>
   );
 };

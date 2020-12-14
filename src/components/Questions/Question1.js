@@ -4,7 +4,7 @@ import {
   Radio,
 } from "antd";
 
-const Question1 = ({control}) => (
+const Question1 = ({control, value}) => (
   <div className="question">
     <label className="required" htmlFor="Clientdata.Geschlecht">
       1. Geschlecht
@@ -13,7 +13,7 @@ const Question1 = ({control}) => (
       as={
         <div>
           <Radio.Group
-            defaultValue="1"
+            defaultValue={value || "Herr"}
             style={{
               width: "100%"
             }}
@@ -21,7 +21,7 @@ const Question1 = ({control}) => (
             size="large"
           >
             <Radio.Button
-              value="1"
+              value="Herr"
               style={{
                 width: "50%",
                 textAlign: "center"
@@ -30,7 +30,7 @@ const Question1 = ({control}) => (
               Herr
             </Radio.Button>
             <Radio.Button
-              value="2"
+              value="Frau"
               style={{
                 width: "50%",
                 textAlign: "center"
@@ -41,7 +41,7 @@ const Question1 = ({control}) => (
           </Radio.Group>
         </div>
       }
-      defaultValue="1"
+      defaultValue={value ? decodeURI(value) : "Herr"}
       control={control}
       className="question--radio"
       name="Clientdata.Geschlecht"
